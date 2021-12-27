@@ -1,0 +1,4 @@
+/target
+
+# LC-3 object files
+*.obj
