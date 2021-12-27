@@ -1,8 +1,8 @@
 fn main() {
-    create_hello_word();
+    create_hello_world();
 }
 
-pub fn create_hello_word() {
+pub fn create_hello_world() {
     let program: Vec<u8> = vec![
         0x3000, // Start address
         0xE002, // LEA 0 1. Set R0 to the address where the "Hello world!" string starts.
