@@ -90,7 +90,12 @@ fn execute(state: &mut State) {
             Err(_) => {
                 panic!(
                     "Unknown Opcode: {}\nRegisters: {:?}\nPc: {:x}\nZF: {}\nNF: {}\nPF: {}\n",
-                    opcode, state.registers, state.pc, state.fzero, state.fneg, state.fpos
+                    opcode,
+                    state.registers,
+                    state.pc,
+                    (state.cflags >> 1) & 0x1,
+                    (state.cflags >> 2) & 0x1,
+                    state.cflags & 0x1
                 );
             }
         }

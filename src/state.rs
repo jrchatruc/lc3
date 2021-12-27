@@ -4,18 +4,18 @@ use std::io::{Read, Write};
 const KEYBOARD_STATUS_REGISTER: u16 = 0xFE00;
 const KEYBOARD_DATA_REGISTER: u16 = 0xFE02;
 
+const F_POS: u16 = 1;
+const F_ZERO: u16 = 1 << 1;
+const F_NEG: u16 = 1 << 2;
+
 #[derive(Debug)]
 pub struct State {
     /// Array of registers R0 through R7
     pub registers: [u16; 8],
     /// Program counter
     pub pc: u16,
-    /// Zero flag
-    pub fzero: bool,
-    /// Negative flag
-    pub fneg: bool,
-    /// Positive flag
-    pub fpos: bool,
+    /// Condition flags, only the first three bits are relevant
+    pub cflags: u16,
     /// Array holding the entire memory
     pub memory: [u16; u16::MAX as usize],
     /// Whether the vm is running or not
@@ -27,9 +27,7 @@ impl State {
         State {
             registers: [0; 8],
             pc: 0x300,
-            fzero: false,
-            fneg: false,
-            fpos: false,
+            cflags: 0,
             memory: [0; u16::MAX as usize],
             running: true,
         }
@@ -68,11 +66,9 @@ impl State {
     }
 
     pub fn conditional_branch(&mut self, instruction: u16) {
-        let n = (instruction >> 11) & 0x1;
-        let z = (instruction >> 10) & 0x1;
-        let p = (instruction >> 9) & 0x1;
+        let condition_flag = (instruction >> 9) & 0x07;
 
-        if (n == 1 && self.fneg) || (z == 1 && self.fzero) || (p == 1 && self.fpos) {
+        if (condition_flag & self.cflags) != 0 {
             let offset = sign_extend(instruction & 0x01FF, 9);
             self.pc += offset;
         }
@@ -177,7 +173,7 @@ impl State {
             Ok(Trapcode::HALT) => self.halt(),
             _ => panic!(
                 "Unexpected trap code. Code: {}\nRegisters: {:?}\nPc: 0x{:x}\nZF: {}\nNF: {}\nPF: {}\n",
-                trap_code, self.registers, self.pc, self.fzero, self.fneg, self.fpos
+                trap_code, self.registers, self.pc, (self.cflags >> 1) & 0x1, (self.cflags >>2) & 0x1, self.cflags & 0x1
             ),
         }
     }
@@ -280,19 +276,12 @@ impl State {
     fn update_flags(&mut self, register: u16) {
         let value = self.registers[register as usize];
 
-        // TODO?: maybe change this to an enum idk.
         if value == 0 {
-            self.fneg = false;
-            self.fpos = false;
-            self.fzero = true;
+            self.cflags = F_ZERO;
         } else if (value >> 15) == 1 {
-            self.fzero = false;
-            self.fpos = false;
-            self.fneg = true;
+            self.cflags = F_NEG;
         } else {
-            self.fzero = false;
-            self.fneg = false;
-            self.fpos = true;
+            self.cflags = F_POS;
         }
     }
 }
