@@ -8,21 +8,48 @@ use state::State;
 mod opcode;
 use opcode::Opcode;
 
+mod disassembler;
+
 const PC_START: u16 = 0x3000;
 
 fn main() {
-    let mut state = State::new();
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        println!("Usage: lc3 [image-file1] [image-file2] ...");
+        println!("Usage:");
+        println!("lc3 [image-file1] [image-file2] ... to run object files.");
+        println!("lc3 --disassemble [image-file1] [image-file2] ...  to disassemble them.");
         std::process::exit(0);
-    } else {
-        for file_path in &args[1..] {
-            load_image_file(&mut state, file_path).unwrap();
-        }
     }
 
+    if args[1] == "--disassemble" {
+        for file_path in &args[2..] {
+            let buffer = load_image_file(file_path).unwrap();
+
+            let origin = buffer[0];
+
+            disassembler::disassemble(&buffer[1..].to_vec(), origin);
+        }
+
+        std::process::exit(0);
+    } else {
+        let mut state = State::new();
+        for file_path in &args[1..] {
+            let buffer = load_image_file(file_path).unwrap();
+
+            // Read the first two bytes to figure out the origin, then put the
+            // rest of the file in state.memory starting from said origin.
+            let origin = buffer[0];
+
+            let _ = &state.memory[origin as usize..origin as usize + buffer.len() - 1]
+                .copy_from_slice(&buffer[1..]);
+        }
+
+        execute(&mut state);
+    }
+}
+
+fn execute(state: &mut State) {
     let sig_action = signal::SigAction::new(
         signal::SigHandler::Handler(handle_interrupt),
         signal::SaFlags::empty(),
@@ -72,10 +99,8 @@ fn main() {
     restore_input_buffering();
 }
 
-// Read the first two bytes to figure out the origin, then read the rest of
-// the contents of the file and put it in state.memory starting from said origin.
 // Every single value needs to be swapped to account for big endianness
-fn load_image_file(state: &mut State, file_path: &str) -> Result<(), std::io::Error> {
+fn load_image_file(file_path: &str) -> Result<Vec<u16>, std::io::Error> {
     let contents = std::fs::read(file_path)?;
 
     let buffer: Vec<u16> = contents
@@ -84,12 +109,7 @@ fn load_image_file(state: &mut State, file_path: &str) -> Result<(), std::io::Er
         .map(|a| u16::from_be_bytes([a[0], a[1]]))
         .collect();
 
-    let origin = buffer[0];
-
-    let _ = &state.memory[origin as usize..origin as usize + buffer.len() - 1]
-        .copy_from_slice(&buffer[1..]);
-
-    Ok(())
+    Ok(buffer)
 }
 
 fn disable_input_buffering() {
