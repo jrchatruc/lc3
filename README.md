@@ -1,6 +1,6 @@
 # LC-3
 
-A basic implementation of an [LC-3](https://en.wikipedia.org/wiki/Little_Computer_3) VM in Rust following [Write your own virtual machine](https://justinmeiners.github.io/lc3-vm/index.html#1:5).
+A basic implementation of an [LC-3](https://en.wikipedia.org/wiki/Little_Computer_3) VM in Rust following [Write your own virtual machine](https://justinmeiners.github.io/lc3-vm).
 
 ## Examples
 
