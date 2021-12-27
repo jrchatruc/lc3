@@ -22,8 +22,7 @@ For more complex examples, you can download the assembled versions of [2048](htt
 $ cargo run --release 2048.obj
 ```
 
-Caveats:
-- The more complex examples are still not fully functional, they will be soon™.
+Caveat:
 - The VM needs to be run with the `--release` flag because it relies on integer overflow, running it in `debug` mode can panic with messages like `thread 'main' panicked at 'attempt to add with overflow'`. This should also be resolved soon™.
 
 ## Other references

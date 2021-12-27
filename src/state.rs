@@ -39,13 +39,13 @@ impl State {
         let dr = get_dr(instruction);
         let sr1 = (instruction >> 6) & 0x07;
 
-        if (instruction >> 5) & 0x1 == 0 {
+        if ((instruction >> 5) & 0x1) == 0 {
             let sr2 = instruction & 0x07;
             self.registers[dr as usize] =
                 self.registers[sr1 as usize] + self.registers[sr2 as usize];
         } else {
-            let imm5 = instruction & 0x1F;
-            self.registers[dr as usize] = self.registers[sr1 as usize] + sign_extend(imm5, 5);
+            let imm5 = sign_extend(instruction & 0x1F, 5);
+            self.registers[dr as usize] = self.registers[sr1 as usize] + imm5;
         }
 
         self.update_flags(dr);
@@ -55,24 +55,15 @@ impl State {
         let dr = get_dr(instruction);
         let sr1 = (instruction >> 6) & 0x07;
 
-        if (instruction >> 5) & 0x1 == 0 {
+        if ((instruction >> 5) & 0x1) == 0 {
             let sr2 = instruction & 0x07;
             self.registers[dr as usize] =
                 self.registers[sr1 as usize] & self.registers[sr2 as usize];
         } else {
-            let imm5 = instruction & 0x1F;
-            self.registers[dr as usize] = self.registers[sr1 as usize] & sign_extend(imm5, 5);
+            let imm5 = sign_extend(instruction & 0x1F, 5);
+            self.registers[dr as usize] = self.registers[sr1 as usize] & imm5;
         }
 
-        self.update_flags(dr);
-    }
-
-    pub fn load_indirect(&mut self, instruction: u16) {
-        let dr = get_dr(instruction);
-        let offset = sign_extend(instruction & 0x01FF, 9);
-        let address = self.mem_read(self.pc + offset);
-
-        self.registers[dr as usize] = self.mem_read(address);
         self.update_flags(dr);
     }
 
@@ -96,7 +87,7 @@ impl State {
     pub fn jump_to_subroutine(&mut self, instruction: u16) {
         self.registers[7] = self.pc;
 
-        if (instruction >> 11) & 0x1 == 0 {
+        if ((instruction >> 11) & 0x1) == 0 {
             let base_register = (instruction >> 6) & 0x07;
             self.pc = self.registers[base_register as usize];
         } else {
@@ -110,6 +101,15 @@ impl State {
         let offset = sign_extend(instruction & 0x01FF, 9);
 
         self.registers[dr as usize] = self.mem_read(self.pc + offset);
+        self.update_flags(dr);
+    }
+
+    pub fn load_indirect(&mut self, instruction: u16) {
+        let dr = get_dr(instruction);
+        let offset = sign_extend(instruction & 0x01FF, 9);
+        let address = self.mem_read(self.pc + offset);
+
+        self.registers[dr as usize] = self.mem_read(address);
         self.update_flags(dr);
     }
 
@@ -143,7 +143,7 @@ impl State {
         let sr = (instruction >> 9) & 0x07;
         let offset = sign_extend(instruction & 0x01FF, 9);
 
-        self.mem_set(self.pc + offset, sr);
+        self.mem_set(self.pc + offset, self.registers[sr as usize]);
     }
 
     pub fn store_indirect(&mut self, instruction: u16) {
@@ -151,7 +151,7 @@ impl State {
         let offset = sign_extend(instruction & 0x01FF, 9);
         let address = self.mem_read(self.pc + offset);
 
-        self.mem_set(address, sr);
+        self.mem_set(address, self.registers[sr as usize]);
     }
 
     pub fn store_base_plus_offset(&mut self, instruction: u16) {

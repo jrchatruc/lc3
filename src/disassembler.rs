@@ -7,7 +7,14 @@ use super::state::State;
 pub fn disassemble(instruction: u16, state: &State) {
     let opcode = instruction >> 12;
 
-    print!("0x{:X} ", state.pc);
+    print!(
+        "0x{:X} {:04b} {:04b} {:04b} {:04b} ",
+        state.pc,
+        instruction >> 12,
+        (instruction >> 8) & 0xF,
+        (instruction >> 4) & 0xF,
+        instruction & 0xF
+    );
 
     match opcode.try_into() {
         Ok(Opcode::BR) => conditional_branch(instruction, state),
@@ -46,7 +53,7 @@ fn conditional_branch(instruction: u16, state: &State) {
     let p_character = if p == 1 { "p" } else { "" };
 
     println!(
-        "BR{}{}{} {}",
+        "BR{}{}{} 0x{:X}",
         n_character,
         z_character,
         p_character,
@@ -87,10 +94,10 @@ fn store(instruction: u16, state: &State) {
 fn jump_to_subroutine(instruction: u16, state: &State) {
     if (instruction >> 11) & 0x1 == 0 {
         let base_register = (instruction >> 6) & 0x07;
-        println!("JSRR {}", state.registers[base_register as usize]);
+        println!("JSRR 0x{:X}", state.registers[base_register as usize]);
     } else {
         let offset = sign_extend(instruction & 0x07FF, 11);
-        println!("JSR {}", state.pc + 1 + offset);
+        println!("JSR 0x{:X}", state.pc + 1 + offset);
     }
 }
 
