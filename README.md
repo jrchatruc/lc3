@@ -9,14 +9,14 @@ To create a `Hello world` object file, run
 ```
 $ cargo run --example hello_world
 ```
-This will create a `hello_world.obj` file under `./examples`, which you can then run on the VM with
+You should now have `hello_world.obj` file under `./examples`, which you can then run on the VM with
 
 ```
 $ cargo run --release ./examples/hello_world.obj
 Hello world!
 ```
 
-For more complex examples, you can download the assembled versions of [2048](https://justinmeiners.github.io/lc3-vm/supplies/2048.obj) and [Rogue](https://justinmeiners.github.io/lc3-vm/supplies/rogue.obj) and run them in the same way, e.g., assuming you download `2048.obj` to the repository's root directory:
+For more interesting examples, you can download the assembled versions of [2048](https://justinmeiners.github.io/lc3-vm/supplies/2048.obj) and [Rogue](https://justinmeiners.github.io/lc3-vm/supplies/rogue.obj) and run them in the same way, e.g., assuming you download `2048.obj` to the repository's root directory:
 
 ```
 $ cargo run --release 2048.obj
