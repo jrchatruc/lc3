@@ -9,7 +9,7 @@ To create a `Hello world` object file, run
 ```
 $ cargo run --example hello_world
 ```
-You should now have `hello_world.obj` file under `./examples`, which you can then run on the VM with
+You should now have a `hello_world.obj` file under `./examples`, which you can then run on the VM with
 
 ```
 $ cargo run --release ./examples/hello_world.obj
