@@ -23,7 +23,7 @@ $ cargo run --release 2048.obj
 ```
 
 Caveat:
-- The VM needs to be run with the `--release` flag because it relies on integer overflow, running it in `debug` mode can panic with messages like `thread 'main' panicked at 'attempt to add with overflow'`. This should also be resolved soon™.
+- The VM needs to be run with the `--release` flag because it relies on integer overflow, running it in `debug` mode can panic with messages like `thread 'main' panicked at 'attempt to add with overflow'`. This should be resolved soon™.
 
 ## Other references
 
