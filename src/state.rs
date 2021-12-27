@@ -195,7 +195,7 @@ impl State {
         let value = self.registers[0] as u8;
 
         print!("{}", value as char);
-        let _ = std::io::stdout().flush();
+        std::io::stdout().flush().unwrap();
     }
 
     fn puts(&mut self) {
@@ -210,12 +210,12 @@ impl State {
             print!("{}", next_char as char);
             index += 1;
         }
-        let _ = std::io::stdout().flush();
+        std::io::stdout().flush().unwrap();
     }
 
     fn input(&mut self) {
         print!("Enter a character: ");
-        let _ = std::io::stdout().flush();
+        std::io::stdout().flush().unwrap();
         let input = get_char();
 
         self.registers[0] = input as u16;
@@ -242,11 +242,11 @@ impl State {
 
             index += 1;
         }
-        let _ = std::io::stdout().flush();
+        std::io::stdout().flush().unwrap();
     }
 
     fn halt(&mut self) {
-        let _ = std::io::stdout().flush();
+        std::io::stdout().flush().unwrap();
         self.running = false;
     }
 
