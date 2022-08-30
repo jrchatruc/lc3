@@ -7,19 +7,24 @@ A basic implementation of an [LC-3](https://en.wikipedia.org/wiki/Little_Compute
 To create a `Hello world` object file, run
 
 ```
-$ cargo run --example hello_world
+cargo run --example hello_world
 ```
 You should now have a `hello_world.obj` file under `./examples`, which you can then run on the VM with
 
 ```
-$ cargo run --release -- ./examples/hello_world.obj
+cargo run --release -- ./examples/hello_world.obj
+```
+
+and get a
+
+```
 Hello world!
 ```
 
 For more interesting examples, you can download the assembled versions of [2048](https://justinmeiners.github.io/lc3-vm/supplies/2048.obj) and [Rogue](https://justinmeiners.github.io/lc3-vm/supplies/rogue.obj) and run them in the same way, e.g., assuming you download `2048.obj` to the repository's root directory:
 
 ```
-$ cargo run --release -- 2048.obj
+cargo run --release -- 2048.obj
 ```
 
 ## Disassembly
@@ -27,7 +32,12 @@ $ cargo run --release -- 2048.obj
 You can disassemble code by passing `--disassemble` as the first argument:
 
 ```
-$ cargo run --release -- --disassemble ./examples/hello_world.obj
+cargo run -- --disassemble ./examples/hello_world.obj
+```
+
+which, in this example, should output the following:
+
+```
 0x3000 1110 0000 0000 0010 LEA R0 0x3003
 0x3001 1111 0000 0010 0100 TRAP PUTSP
 0x3002 1111 0000 0010 0101 TRAP HALT
